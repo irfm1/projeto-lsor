@@ -9,10 +9,9 @@ iptables -A INPUT -j REJECT
 #R1, no protocolo TCP, devendo ser capazes de responder a elas.
 
 #iptables -A INPUT -p tcp --destination-port 22 -j ACCEPT
-iptables -A FORWARD 1 -p tcp --destination-port 22 -j ACCEPT
+iptables -A FORWARD -p tcp --destination-port 22 -j ACCEPT
 
 #Q4
-iptables -I FOWARD 2 -p tcp -s 10.10.10.0/24 -d 192.168.0.0/255.255.255.100 -j ACCEPT
+iptables -I FORWARD 2 -p tcp -s 10.10.10.0/24 -d 192.168.0.0/255.255.255.100 -j ACCEPT
 
-iptables -I FOWARD 3 -p tcp -d 192.168.0.0/255.255.255.100 -d 10.10.10.0/24 -j ACCEPT
-
+iptables -I FORWARD 3 -p tcp -d 192.168.0.0/255.255.255.100 -d 10.10.10.0/24 -j ACCEPT
