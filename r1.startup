@@ -17,3 +17,15 @@ iptables -I FORWARD -p tcp -s 192.168.0.0/255.255.255.100 -d 10.10.10.0/24 -j AC
 #Q6
 iptables -I FORWARD -p udp --dport 53 -s 10.10.10.0/24 -d 10.0.0.253 -j ACCEPT
 iptables -I FORWARD -p udp --dport 53 -s 10.0.0.253 -d 10.10.10.0/24 -j ACCEPT
+
+
+#Q7
+
+#echo 1 | sudo tee /proc/sys/net/ipv4/ip_forward
+
+#iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to-source 200.210.10.1-200.210.10.10
+#iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to-source 200.210.10.1-200.210.10.10:1024:32000
+
+#Q8
+iptables -N internet
+iptables -A INPUT -p tcp --dport 80 -j internet
