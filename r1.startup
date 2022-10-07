@@ -1,5 +1,5 @@
 ifconfig eth0 10.10.10.1/24 up
-route add default gw 10.10.10.5
+route add default gw 172.17.0.2
 
 #Q1 - a comunicação entre os nós de subredes distintas devem estar bloqueados
 iptables -P FORWARD DROP
@@ -17,3 +17,8 @@ iptables -I FORWARD -p tcp -s 192.168.0.0/255.255.255.100 -d 10.10.10.0/24 -j AC
 #Q6
 iptables -I FORWARD -p udp --dport 53 -s 10.10.10.0/24 -d 10.0.0.253 -j ACCEPT
 iptables -I FORWARD -p udp --dport 53 -s 10.0.0.253 -d 10.10.10.0/24 -j ACCEPT
+
+
+#internal to internet
+iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT
+iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
