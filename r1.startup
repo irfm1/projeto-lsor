@@ -1,7 +1,7 @@
 ifconfig eth0 10.10.10.1/24 up
 
 #route add default gw 10.10.10.5
-#route add default gw 172.17.0.2
+route add default gw 172.17.0.1
 
 route add -net 10.0.0.0/24 gw 10.10.10.5
 route add -net 192.168.0.0/24 gw 10.10.10.5
