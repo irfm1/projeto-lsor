@@ -22,7 +22,26 @@ iptables -I FORWARD -p tcp -s 192.168.0.0/255.255.255.100 -d 10.10.10.0/24 -j AC
 iptables -I FORWARD -p udp --dport 53 -s 10.10.10.0/24 -d 10.0.0.253 -j ACCEPT
 iptables -I FORWARD -p udp --dport 53 -s 10.0.0.253 -d 10.10.10.0/24 -j ACCEPT
 
+
 #Q7
 #internal to internet
-iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT
-iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+#iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT
+#iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+
+iptables -I FORWARD -s 10.10.10.5 -j ACCEPT
+iptables -I FORWARD -d 10.10.10.5 -j ACCEPT
+
+### old 1
+
+##echo 1 > /proc/sys/net/ipv4/ip_forward
+##cat /proc/sys/net/ipv4/ip_forward
+
+##iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to-source 200.210.10.1-200.210.10.10
+##iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to-source 200.210.10.1-200.210.10.10:1024:32000
+
+## fim old 2
+
+#Q8
+#iptables -N internet
+#iptables -A INPUT -p tcp --dport 80 -j internet
+#iptables -A INPUT -p icmp --icmp-type echo-request -j REJECT
