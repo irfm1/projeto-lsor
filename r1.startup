@@ -1,28 +1,64 @@
 ifconfig eth0 10.10.10.1/24 up
-route add default gw 172.17.0.1
-
-route add -net 10.0.0.0/24 gw 10.10.10.5
 
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
-#Q1 - a comunicação entre os nós de subredes distintas devem estar bloqueados
+route add -net 10.0.0.0/24 gw 10.10.10.5 dev eth0
+route add -net 192.168.0.0/24 gw 10.10.10.5 dev eth0
+
+#1 & 2
 iptables -P FORWARD DROP
+iptables -P INPUT DROP
 
-#3) As máquinas devem ser acessíveis através através da porta 22 (SSH), para conex˜oes provenientes de
-#R1, no protocolo TCP, devendo ser capazes de responder a elas.
+#3
 
-iptables -I INPUT -p tcp -j ACCEPT
-iptables -I INPUT -p tcp --dport 22 -j ACCEPT
+iptables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 22 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 
-#Q4
-iptables -I FORWARD -p tcp -s 10.10.10.0/24 -d 192.168.0.0/255.255.255.100 -j ACCEPT
-iptables -I FORWARD -p tcp -s 192.168.0.0/255.255.255.100 -d 10.10.10.0/24 -j ACCEPT
+#4 allow tcp on range 192.168.0.1 192.168.0.100
 
-#Q6
-iptables -I FORWARD -p udp --dport 53 -s 10.10.10.0/24 -d 10.0.0.253 -j ACCEPT
-iptables -I FORWARD -p udp --dport 53 -s 10.0.0.253 -d 10.10.10.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp -s 10.10.10.0/24 -d 192.168.0.0/255.255.255.100 -j ACCEPT
+iptables -A FORWARD -p tcp -s 192.168.0.0/255.255.255.100 -d 10.10.10.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp -s 10.0.0.0/24 -d 192.168.0.0/255.255.255.100 -j ACCEPT
+iptables -A FORWARD -p tcp -s 192.168.0.0/255.255.255.100 -d 10.0.0.0/24 -j ACCEPT
 
-#Q7
-#internal to internet
-iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT
+#5 allow udp on range 192.168.0.1 192.168.0.100 on port 53
+iptables -A INPUT -p udp -s 10.0.0.0/24 -d 192.168.0.0/255.255.255.100 --dport 53 -j ACCEPT
+iptables -A INPUT -p udp -s 192.168.0.0/255.255.255.100 -d 10.0.0.0/24 --dport 53 -j ACCEPT
+
+#6
+iptables -A FORWARD -p udp --dport 53 -s 10.10.10.0/24 -d 10.0.0.253 -j ACCEPT
+iptables -A FORWARD -p udp --dport 53 -s 10.0.0.253 -d 10.10.10.0/24 -j ACCEPT
+  
+
+#?
+iptables -A INPUT -p tcp --dport 80 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 80 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+iptables -A INPUT -p tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+
+#7
 iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+
+
+#8
+
+#9
+iptables -t nat -A PREROUTING -i eth1 -p tcp --dport 80 -j DNAT \
+	    --to-destination 10.10.10.3:8080
+iptables -t nat -A PREROUTING -i eth1 -p tcp --dport 443 -j DNAT \
+        --to-destination 10.10.10.3:8443
+
+iptables -A FORWARD -p tcp --dport 80 -i eth1 -j ACCEPT
+iptables -A FORWARD -p tcp --dport 80 -o eth1 -j ACCEPT
+iptables -A FORWARD -p tcp --dport 443 -i eth1 -j ACCEPT
+iptables -A FORWARD -p tcp --dport 443 -o eth1 -j ACCEPT
+iptables -A FORWARD -p tcp --dport 8080 -d 10.10.10.3 -j ACCEPT
+iptables -A FORWARD -p tcp --dport 8080 -s 10.10.10.3 -j ACCEPT
+iptables -A FORWARD -p tcp --dport 8443 -d 10.10.10.3 -j ACCEPT
+iptables -A FORWARD -p tcp --dport 8443 -s 10.10.10.3 -j ACCEPT
+
+#12
+iptables -A FORWARD -s 192.168.0.0/24 -j ACCEPT
+iptables -A FORWARD -d 192.168.0.0/24 -j ACCEPT
+

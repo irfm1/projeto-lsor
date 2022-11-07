@@ -1,2 +1,8 @@
-ifconfig eth0 192.168.0.254/24
-route add default gw 192.168.0.1
+ifconfig eth0 192.168.0.254/24 up
+route add default gw 192.168.0.1 dev eth0
+
+apt-get update -y
+
+#Tendo em vista que estamos disponibilizando o arquivo de configuração, faz-se necessário passar a opção N como entrada para o comando
+echo N | apt-get install -y isc-dhcp-server
+/etc/init.d/isc-dhcp-server restart

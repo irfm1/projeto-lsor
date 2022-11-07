@@ -1,41 +1,38 @@
-ifconfig eth0 10.0.0.1/24
-ifconfig eth1 192.168.0.1/24
-ifconfig eth2 10.10.10.5/24
-
-route add default gw 10.10.10.1
-
-route add -net 10.0.0.0/24 gw 10.0.0.1
-route add -net 192.168.0.0/24 gw 192.168.0.1
-route add -net 10.10.10.0/24 gw 10.10.10.5
+ifconfig eth0 10.10.10.5/24 up
+ifconfig eth1 10.0.0.1/24 up
+ifconfig eth2 192.168.0.1/24 up
+route add default gw 10.10.10.1 dev eth0
 
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
+route add -net 10.10.10.0/24 gw 10.10.10.1 dev eth0
+route add -net 10.0.0.0/24 gw 10.0.0.1 dev eth1
+route add -net 192.168.0.0/24 gw 192.168.0.1 dev eth2
 
-#Q1- a comunicação entre os nós de subredes distintas devem estar bloqueados
-iptables -P INPUT DROP
+#1 & 2
 iptables -P FORWARD DROP
+iptables -P INPUT DROP
 
-#Q3) As máquinas devem ser acessíveis através da porta 22 (SSH), para conexões provenientes de
-#R1, no protocolo TCP, devendo ser capazes de responder a elas.
+#3
+iptables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 22 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 
-iptables -A INPUT -s 10.10.10.1 -p tcp -m tcp --dport 22 -j ACCEPT
-iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A FORWARD -s 10.0.0.0/24 -d 10.10.10.1/32 -p tcp -m tcp --dport 22 -j ACCEPT
-iptables -A FORWARD -s 10.10.10.1 -d 10.0.0.0/24 -p tcp --dport 22 -j ACCEPT
-iptables -A FORWARD -s 192.168.0.0/24 -d 10.10.10.1 -p tcp -m tcp --dport 22 -j ACCEPT
-iptables -A FORWARD -d 192.168.0.0/24 -s 10.10.10.1 -p tcp -m tcp --dport 22 -j ACCEPT
+#4
+iptables -A FORWARD -i eth1 -o eth0 -p tcp --sport 22 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i eth0 -o eth1 -p tcp --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i eth0 -o eth2 -p tcp --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
 
-#Q4
-iptables -I FORWARD 2 -p tcp -s 10.0.0.0/24 -d 192.168.0.0/255.255.255.100 -j ACCEPT
-iptables -I FORWARD 3 -p tcp -s 192.168.0.0/255.255.255.100 -d 10.0.0.0/24 -j ACCEPT
-iptables -I FORWARD 4 -p tcp -s 10.10.10.0/24 -d 192.168.0.0/255.255.255.100 -j ACCEPT
-iptables -I FORWARD 5 -p tcp -s 192.168.0.0/255.255.255.100 -d 10.10.10.0/24 -j ACCEPT
+#5
+iptables -A FORWARD -p udp -s 192.168.0.0/255.255.255.100 -d 10.0.0.253 --dport 53 -j ACCEPT
+iptables -A FORWARD -p udp -s 10.0.0.253 -d 192.168.0.0/255.255.255.100 --dport 53 -j ACCEPT
 
-#Q5
-iptables -I FORWARD 6 -p udp --dport 53 -s 192.168.0.0/255.255.255.100 -d 10.0.0.253 -j ACCEPT
-iptables -I FORWARD 7 -p udp --dport 53 -s 10.0.0.253 -d 192.168.0.0/255.255.255.100 -j ACCEPT
+#6
+iptables -A FORWARD -p udp --dport 53 -s 10.10.10.0/24 -d 10.0.0.253 -j ACCEPT
+iptables -A FORWARD -p udp --dport 53 -s 10.0.0.253 -d 10.10.10.0/24 -j ACCEPT
 
-#Q6
-iptables -I FORWARD 8 -p udp --dport 53 -s 10.10.10.0/24 -d 10.0.0.253 -j ACCEPT
-iptables -I FORWARD 9 -p udp --dport 53 -s 10.0.0.253 -d 10.10.10.0/24 -j ACCEPT
 
+
+#12
+iptables -A FORWARD -s 192.168.0.0/24 -j ACCEPT
+iptables -A FORWARD -d 192.168.0.0/24 -j ACCEPT
