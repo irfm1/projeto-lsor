@@ -1,0 +1,32 @@
+$TTL 3600 
+@   IN SOA dns.{{item}}. root.{{item}}. (1 15m 5m 30d 1h) 
+@   IN	NS	{{name_server}}
+dns	IN	A 	{{zone_address}}
+
+{% for server1 in servers %}
+
+{% if server1.type == 'A' %}
+{{server1.hostname}}	IN	A	{{server1.ip}}
+{% endif %}
+{% if server1.type == 'CNAME' %}
+{{server1.hostname}}	IN	CNAME	{{server1.ip}}
+{% endif %}
+@   IN  A   10.0.0.253
+{% if server1.type == 'MX' %}
+@	IN	MX  10	{{server1.ip}}
+{% endif %}
+{% if server1.type == 'TXT' %}
+{{server1.hostname}}	IN	TXT	{{server1.ip}}
+{% endif %}
+{% if server1.type == 'SRV' %}
+{{server1.hostname}}	IN	SRV	{{server1.ip}}
+{% endif %}
+{% if server1.type == 'NS' %}
+{{server1.hostname}}	IN	NS	{{server1.ip}}
+{% endif %}
+{% if server1.type == 'PTR' %}
+{{server1.hostname}}	IN	PTR	{{server1.ip}}
+{% endif %}
+
+
+{% endfor %}

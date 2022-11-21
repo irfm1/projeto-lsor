@@ -1,0 +1,26 @@
+#Especifica a lista de clientes para o qual consultas recursivas ser~ao permitidas para
+# o servidor DNS
+
+acl "trusted" {
+	{{allow_query_from}}
+};
+
+acl "outside" {
+	any;
+};
+
+#O bloco option especifica a configura ̧c~ao b ́asica para nosso servidor DNS
+
+options {
+	directory "/var/cache/bind"; #Indica o local onde ser~ao
+	recursion {{recursion}}; # Habilita consultas recursivas
+	allow-recursion { trusted; }; # Define os clientes que podem realizr
+	listen-on { {{zone_address}}; }; # Indica o endere ̧co IP da m ́aquina onde o DNS ir ́a
+	allow-transfer { none; }; # Desabilita a zona de transfer^encia
+	# Especifica os encaminhadores que ser~ao utilizados para o caso de n~ao ser
+	# possıvel resolver um dado dom ́ınio
+
+	forwarders {
+		{{forwarders}}
+		};
+};
