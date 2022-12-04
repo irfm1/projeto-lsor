@@ -1,0 +1,10 @@
+$TTL 3600 
+{% for item in zone_names %}
+@ IN SOA dns.{{item}}. root.{{item}}. (1 15m 5m 30d 1h) 
+{% endfor %}
+	IN	NS	{{name_server}}
+	IN	A 	{{zone_address}}
+
+; PTR Records
+252 IN PTR squid.admweb.empresa.com.br. ; 10.0.0.252
+251 IN PTR samba.admweb.empresa.com.br. ; 10.0.0.251

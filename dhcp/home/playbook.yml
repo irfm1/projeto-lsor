@@ -1,0 +1,55 @@
+---
+  - name: Configure DNS using bind
+    hosts: all
+    remote_user: dns
+    become: yes
+    become_user: root
+    become_method: sudo
+ 
+    vars:
+      zone_names: 
+        - admweb.empresa.com.br
+      zone_address: 10.0.0.253
+      allow_query_from: "10.0.0.0/24; 10.10.10.0/24; 192.168.0.0/24;"
+      forwarders: "8.8.8.8; 8.8.4.4;"
+      name_server: dns.admweb.empresa.com.br.
+      recursion: yes
+      servers:
+        - { hostname: squid, ip: 10.0.0.252, type: A}
+        - { hostname: samba, ip: 10.0.0.251 , type: A }
+        - { hostname: email, ip: 10.10.10.4 , type: A }
+        - { hostname: email, ip: admweb.empresa.com.br. , type: MX }
+        - { hostname: www, ip: 10.10.10.3 , type: A }
+        - { hostname: ftp, ip: 10.10.10.2 , type: A }
+        - { hostname: app, ip: www.admweb.empresa.com.br. , type: CNAME }
+
+    tasks:
+    - name: Install bind9 and bind9utils package
+      apt: name="{{item}}" state=present
+      with_items:
+        - bind9
+        - bind9utils
+
+    - name: Create custom named.conf with desired zone
+      template: src=named.conf dest=/etc/bind/named.conf owner=dns group=root mode=644
+
+
+    - name: Create custom named.conf.options with desired options
+      template: src=named.conf.options dest=/etc/bind/named.conf.options owner=dns mode=640
+      with_items:
+        - allow_query_from
+        - recursion
+        - forwarders
+
+    - name: Copy zone forward files for all zones 
+      template: src="zone.forward" dest="/etc/bind/zones/db.{{item}}" owner=dns mode=640
+      with_items: admweb.empresa.com.br
+
+
+    - name: Copy zone reverse files for all zones 
+      template: src="zone.reverse" dest="/etc/bind/zones/db.10.0.0" owner=dns mode=640
+      with_items:
+       - zone_names
+       - zone_address
+
+      

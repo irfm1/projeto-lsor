@@ -1,1 +1,1 @@
-dhclient
+echo N | dhclient
