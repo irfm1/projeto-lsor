@@ -1,2 +1,10 @@
 ifconfig eth0 10.10.10.2/24 up
 route add default gw 10.10.10.1 dev eth0
+
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
+echo N | apt-get update -y
+
+echo N | apt-get install -y proftpd 
+
+/etc/init.d/proftpd start
