@@ -3,8 +3,11 @@ route add default gw 10.10.10.1 dev eth0
 
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
-echo N | apt-get update -y
+apt-get update -y
 
-echo N | apt-get install -y proftpd 
+apt-get install proftpd -y
+
+echo "127.0.0.1 ftp" > /etc/hosts
 
 /etc/init.d/proftpd start
+
