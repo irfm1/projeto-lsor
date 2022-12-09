@@ -25,5 +25,34 @@ https://raw.githubusercontent.com/irfm1/projeto-lsor/main/topologia.png)
 2. Entre na pasta do projeto
 3. Execute o kathara com o comando `kathara lstart`
 
+### FTP
+
+- Para verificar se o ProFTPd está rodando:
+   ````
+    ps auwx | grep proftpd
+   ````
+   ````
+    proftpd -v
+   ````
+   ````
+    service proftpd status
+   ````
+
+- Testes
+    - Da máquina PC utilizando o endereço IP de destino; 
+
+    ````
+        ftp10.10.10.2
+    ````
+    
+    ````
+        ftp> put /files/1.txt /home/usuario1/1.txt
+    ````
+    
+    ````
+        get 1.txt /tmp/1.txt
+    ````
+
+
 
 
