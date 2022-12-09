@@ -11,3 +11,11 @@ echo "127.0.0.1 ftp" > /etc/hosts
 
 /etc/init.d/proftpd start
 
+adduser usuario1
+echo "usuario1:minha-senha" | chpasswd
+
+adduser usuario2
+echo "usuario2:minha-senha" | chpasswd
+
+adduser usuario3
+echo "usuario3:minha-senha" | chpasswd
