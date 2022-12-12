@@ -9,6 +9,8 @@ apt-get install proftpd -y
 
 echo "127.0.0.1 ftp" > /etc/hosts
 
+cp proftpd.conf /etc/proftpd/proftpd.conf
+
 /etc/init.d/proftpd start
 
 adduser usuario1
@@ -19,3 +21,7 @@ echo "usuario2:minha-senha" | chpasswd
 
 adduser usuario3
 echo "usuario3:minha-senha" | chpasswd
+
+#sem acesso ao shell
+adduser -shell /bin/false mayara
+echo "mayara:1" | chpasswd

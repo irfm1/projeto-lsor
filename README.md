@@ -65,6 +65,8 @@ dig A ftp.admweb.empresa.com.br
 
 ### FTP
 
+https://linuxize.com/post/how-to-use-linux-ftp-command-to-transfer-files/
+
 - Para verificar se o ProFTPd está rodando:
    ````
     ps auwx | grep proftpd
