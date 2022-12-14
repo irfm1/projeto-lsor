@@ -24,12 +24,24 @@ echo "usuario3:minha-senha" | chpasswd
 
 #Anônimo
 #sem acesso ao shell
-adduser -shell /bin/false mayara
+#adduser -shell /bin/false mayara
+
+adduser mayara
 echo "mayara:1" | chpasswd
 
 #Cria grupo para acesso anônimo
-groupadd grupo_ftp_anonimo
-usermod -a -G grupo_ftp_anonimo mayara
+groupadd ftp
+usermod -a -G ftp mayara
+
+#mkdir /home/mayara/files_ftp
+#mkdir /home/usuario1/files_ftp
+#mkdir /home/usuario2/files_ftp
+#mkdir /home/usuario3/files_ftp
+
+cp /files/* /home/mayara/
+cp /files/* /home/usuario1/
+cp /files/* /home/usuario2/
+cp /files/* /home/usuario3/
 
 #verifica os usuários deste grupo:
 #members grupo_ftp_anonimo
