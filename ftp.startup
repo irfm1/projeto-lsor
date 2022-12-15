@@ -1,2 +1,57 @@
 ifconfig eth0 10.10.10.2/24 up
 route add default gw 10.10.10.1 dev eth0
+
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
+apt-get update -y
+
+apt-get install members proftpd -y
+
+echo "127.0.0.1 ftp" > /etc/hosts
+
+cp proftpd.conf /etc/proftpd/proftpd.conf
+
+/etc/init.d/proftpd start
+
+adduser usuario1
+echo "usuario1:minha-senha" | chpasswd
+
+adduser usuario2
+echo "usuario2:minha-senha" | chpasswd
+
+adduser usuario3
+echo "usuario3:minha-senha" | chpasswd
+
+#Anônimo
+#sem acesso ao shell
+adduser -shell /bin/false rysia
+echo "rysia:1" | chpasswd
+
+adduser mayara
+echo "mayara:1" | chpasswd
+
+#Cria grupo sem permissão
+groupadd outrogrupo
+usermod -a -G outrogrupo rysia
+
+#Cria grupo para acesso ftp normal e anônimo
+
+groupadd ftp
+
+usermod -a -G ftp mayara
+usermod -a -G ftp usuario1
+usermod -a -G ftp usuario2
+usermod -a -G ftp usuario3
+
+chmod -R 777 /files
+
+cp /files/* /home/mayara/
+cp /files/* /home/usuario1/
+cp /files/* /home/usuario2/
+cp /files/* /home/usuario3/
+
+#verifica os usuários deste grupo:
+#members  nome_grupo
+#grep nome_grupo /etc/group
+
+
