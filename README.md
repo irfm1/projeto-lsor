@@ -96,7 +96,19 @@ https://linuxize.com/post/how-to-use-linux-ftp-command-to-transfer-files/
     ````
         ftp ftp.admweb.empresa.com.br
     ````
+# Para **acesso EXTERNO**, vá ao terminal do linux:
 
+````
+sudo apt install net-tools -y
+````
+
+````
+sudo route add -net 10.10.10.0/24 gw 172.17.0.1
+````
+
+````
+sudo route add -net 10.10.10.0/24 gw 10.10.10.1
+````
 
 
 
